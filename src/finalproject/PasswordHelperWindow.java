@@ -201,64 +201,79 @@ public class PasswordHelperWindow extends Application
         
         //registering the get password button to an event handler
         getPasswordButton.setOnAction(event->
-        {      
-            //if statement that 
-            if(phraseListView.getSelectionModel().isEmpty())
+        {   
+            //if statement that prevents the user from creating a password if they have selected a phrase from both list view objects
+            if(!phraseListView.getSelectionModel().isEmpty() || !userPhraseListView.getSelectionModel().isEmpty())
             {
-                phrase = userPhraseListView.getSelectionModel().getSelectedItem();
+                //resetting the selections for each list view to signal the user that have an incorrectly chosen a phrase
+                phraseListView.getSelectionModel().clearSelection();
+                userPhraseListView.getSelectionModel().clearSelection();
+                digitListView.getSelectionModel().clearSelection();
+                charListView.getSelectionModel().clearSelection();
             }
             
-            else if(userPhraseListView.getSelectionModel().isEmpty())
+            //else statement that handles the creation of a new password
+            // if and only if the user has selected just one phrase from the list view objects
+            else
             {
-                phrase = phraseListView.getSelectionModel().getSelectedItem();
-            }
+                //if-else if statement that selects a phrase from the correct list view control
+                if(phraseListView.getSelectionModel().isEmpty())
+                {
+                    phrase = userPhraseListView.getSelectionModel().getSelectedItem();
+                }
             
-            //getting the phrase, digit and characters selected by the user
-            Integer digit = digitListView.getSelectionModel().getSelectedItem();
-            String character = charListView.getSelectionModel().getSelectedItem();
+                else if(userPhraseListView.getSelectionModel().isEmpty())
+                {
+                    phrase = phraseListView.getSelectionModel().getSelectedItem();
+                }
             
-            //combining the options selected by the user into one single string variable
-            String temp = phrase + digit.toString() + character;
+                //getting the digit and characters selected by the user
+                Integer digit = digitListView.getSelectionModel().getSelectedItem();
+                String character = charListView.getSelectionModel().getSelectedItem();
             
-            //while we are not getting the string response, we will use the getLengthResponse
-            // in order to set the phrase of the PasswordCreator object and receive an encrypted password
-            String eatOutput = obj.getLengthResponse(temp);
+                //combining the options selected by the user into one single string variable
+                String temp = phrase + digit.toString() + character;
             
-            //getting the password
-            password = obj.getPassword();
+                //while we are not getting the string response, we will use the getLengthResponse
+                // in order to set the phrase of the PasswordCreator object and receive an encrypted password
+                String eatOutput = obj.getLengthResponse(temp);
             
-            //now setting the password output text field equal to the newly created password
-            passwordOutputTextField.setText(password);
+                //getting the password
+                password = obj.getPassword();
             
-            //try catch block to handle the SQLException if thrown
-            try
-            {
-                //creating a ResultSet to gather the contents of the password table
-                ResultSet passwordResultSet = stmt.executeQuery("SELECT Password FROM Passwords");
+                //now setting the password output text field equal to the newly created password
+                passwordOutputTextField.setText(password);
+            
+                //try catch block to handle the SQLException if thrown
+                try
+                {
+                    //creating a ResultSet to gather the contents of the password table
+                    ResultSet passwordResultSet = stmt.executeQuery("SELECT Password FROM Passwords");
                 
-                //finding the number of total rows in the table
-                passwordResultSet.last();
-                passwordID = passwordResultSet.getRow() + 1;
+                    //finding the number of total rows in the table
+                    passwordResultSet.last();
+                    passwordID = passwordResultSet.getRow() + 1;
 
-                //inserting the new password into the password table
-                stmt.executeUpdate("INSERT INTO Passwords VALUES"
-                        + "(" + passwordID.toString() + ", '" + password + "')");   
-            }
+                    //inserting the new password into the password table
+                    stmt.executeUpdate("INSERT INTO Passwords VALUES"
+                            + "(" + passwordID.toString() + ", '" + password + "')");   
+                }
             
-            //catch clause for the SQLException
-            catch(SQLException e)
-            {
-                System.out.print(e.getMessage());
-            }
+                //catch clause for the SQLException
+                catch(SQLException e)
+                {
+                    System.out.print(e.getMessage());
+                }
 
-            //updating the password number and label
-            passwordLabel.setText("Password ID: " + passwordID.toString());
+                //updating the password number and label
+                passwordLabel.setText("Password ID: " + passwordID.toString());
             
-            //resetting the selections for each list view
-            phraseListView.getSelectionModel().clearSelection();
-            userPhraseListView.getSelectionModel().clearSelection();
-            digitListView.getSelectionModel().clearSelection();
-            charListView.getSelectionModel().clearSelection();
+                //resetting the selections for each list view
+                phraseListView.getSelectionModel().clearSelection();
+                userPhraseListView.getSelectionModel().clearSelection();
+                digitListView.getSelectionModel().clearSelection();
+                charListView.getSelectionModel().clearSelection();
+            }
             
         });
         
